@@ -1,0 +1,411 @@
+SELECT z.dimension_id dimension_id,
+z.dimension_code dimension_code,
+z.dimension_name dimension_name,
+z.level_id level_id,
+z.level_name level_name,
+z.level_member_id level_member_id,
+z.level_member_name level_member_name
+  FROM (
+ --Product-Item
+ SELECT lvl.dimension_id,
+        lvl.dimension_code,
+        lvl.dimension_name,
+        lvl.level_id,
+        lvl.dimension_code || '-' || lvl.level_name level_name,
+        mem.level_member_id,
+        item.item_name level_member_name
+   FROM msc_level_members_v mem, msc_levels_v lvl, msc_system_items item
+  WHERE lvl.level_id = mem.level_id
+    AND item.inventory_item_id = mem.level_member_id
+    AND lvl.dimension_id = 1
+  GROUP BY lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.level_name,
+           mem.level_member_id,
+           item.item_name
+ UNION
+ --Product-Category
+ SELECT lvl.dimension_id,
+        lvl.dimension_code,
+        lvl.dimension_name,
+        lvl.level_id,
+        lvl.dimension_code || '-' || lvl.level_name level_name,
+        mem.level_member_id,
+        cat.name level_member_name
+   FROM msc_level_members_v mem, msc_levels_v lvl, msc_dim_category_v cat
+  WHERE lvl.level_id = mem.level_id
+    AND cat.id = mem.level_member_id
+    AND nvl(cat.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+    AND lvl.dimension_id = 1
+        UNION
+    --Organization-Organization
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           org.organization_code level_member_name
+      FROM msc_level_members_v    mem,
+           msc_levels_v           lvl,
+           msc_dim_organization_v org
+     WHERE lvl.level_id = mem.level_id
+       AND org.id = mem.level_member_id
+       AND nvl(org.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+       AND lvl.dimension_id = 2
+    UNION
+    --Organization-Business Unit
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           bu.name level_member_name
+      FROM msc_level_members_v mem, msc_levels_v lvl, msc_dim_bu_v bu
+     WHERE lvl.level_id = mem.level_id
+       AND bu.id = mem.level_member_id
+       AND nvl(bu.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+       AND lvl.dimension_id = 2
+    UNION
+    --Organization-Legal Entity
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           le.name level_member_name
+      FROM msc_level_members_v mem, msc_levels_v lvl, msc_dim_le_v le
+     WHERE lvl.level_id = mem.level_id
+       AND le.id = mem.level_member_id
+       AND nvl(le.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+       AND lvl.dimension_id = 2
+    UNION
+    --Organization-Zone
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           cust_zone.name level_member_name
+      FROM msc_level_members_v mem,
+           msc_levels_v        lvl,
+           msc_dim_zone_v      cust_zone
+     WHERE lvl.level_id = mem.level_id
+       AND cust_zone.id = mem.level_member_id
+       AND nvl(cust_zone.parent_id, -1) =
+           nvl(mem.parent_level_member_id, -1)
+       AND lvl.dimension_id = 2
+       AND lvl.level_id = 65
+        UNION
+    --Customer-Customer
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           cust.name level_member_name
+      FROM msc_level_members_v mem, msc_levels_v lvl, msc_dim_cust_v cust
+     WHERE lvl.level_id = mem.level_id
+       AND cust.id = mem.level_member_id
+       AND nvl(cust.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+       AND lvl.dimension_id = 3
+    UNION
+    --Customer-Customer Site
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           cus_site.name level_member_name
+      FROM msc_level_members_v mem,
+           msc_levels_v        lvl,
+           msc_dim_cust_site_v cus_site
+     WHERE lvl.level_id = mem.level_id
+       AND cus_site.id = mem.level_member_id
+       AND nvl(cus_site.parent_id, -1) =
+           nvl(mem.parent_level_member_id, -1)
+       AND lvl.dimension_id = 3
+    UNION
+    --Custom Customer
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           cus_custom.name level_member_name
+      FROM msc_level_members_v       mem,
+           msc_levels_v              lvl,
+           msc_dim_cstm_level_data_v cus_custom
+     WHERE lvl.level_id = mem.level_id
+       AND cus_custom.id = mem.level_member_id
+       AND nvl(cus_custom.parent_id, -1) =
+           nvl(mem.parent_level_member_id, -1)
+       AND cus_custom.hierarchy_id = mem.hierarchy_id
+       AND cus_custom.dimension_id = lvl.dimension_id
+       AND lvl.dimension_id = 3
+    UNION
+    --Customer--Customer Class
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           cus_class.name level_member_name
+      FROM msc_level_members_v      mem,
+           msc_levels_v             lvl,
+           msc_dim_customer_class_v cus_class
+     WHERE lvl.level_id = mem.level_id
+       AND cus_class.id = mem.level_member_id
+       AND lvl.dimension_id = 3
+       AND lvl.level_id = 45
+    UNION
+    --Customer-Zone
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           cust_zone.name level_member_name
+      FROM msc_level_members_v mem,
+           msc_levels_v        lvl,
+           msc_dim_zone_v      cust_zone
+     WHERE lvl.level_id = mem.level_id
+       AND cust_zone.id = mem.level_member_id
+       AND nvl(cust_zone.parent_id, -1) =
+           nvl(mem.parent_level_member_id, -1)
+       AND lvl.dimension_id = 3
+       AND lvl.level_id = 71
+    UNION
+    --Customer-Customer Type  
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           mem.level_member_id,
+           cust_type.name level_member_name
+      FROM msc_level_members_v    mem,
+           msc_levels_v           lvl,
+           msc_dim_key_cus_type_v cust_type
+     WHERE lvl.level_id = mem.level_id
+       AND cust_type.id = mem.level_member_id
+       AND lvl.dimension_id = 3
+       AND lvl.level_id = 104
+        UNION
+    --Demand Class
+    SELECT lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.dimension_code || '-' || lvl.level_name level_name,
+           dc.id level_member_id,
+           dc.name level_member_name
+      FROM msc_levels_v lvl, msc_dim_demand_class_v dc
+     WHERE 1 = 1
+       AND dc.level_id = lvl.level_id
+       AND lvl.dimension_id = 5
+        UNION
+ --Time--Month
+ SELECT lvl.dimension_id,
+        lvl.dimension_code,
+        lvl.dimension_name,
+        lvl.level_id,
+        lvl.dimension_code || '-' || lvl.level_name level_name,
+        tim.tim_52_id level_member_id,
+        to_char(tim.from_date, 'YYYY-MON') level_member_name
+   FROM msc_levels_v lvl, msc_dimension_tim_dyd tim
+  WHERE 1 = 1
+    AND lvl.level_id = tim_level_id + 1
+    AND tim_level_id = 51
+  GROUP BY lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.level_name,
+           tim.tim_52_id,
+           to_char(tim.from_date, 'YYYY-MON')
+ UNION
+ --Time--Qtr
+ SELECT lvl.dimension_id,
+        lvl.dimension_code,
+        lvl.dimension_name,
+        lvl.level_id,
+        lvl.dimension_code || '-' || lvl.level_name level_name,
+        tim.tim_53_id level_member_id,
+        MAX(CASE
+              WHEN substr(to_char(tim.from_date, 'MMRRRR'), 1, 2) IN
+                   ('01', '02', '03') THEN
+               to_char(tim.from_date, 'RRRR') || 'Q1'
+              WHEN substr(to_char(tim.from_date, 'MMRRRR'), 1, 2) IN
+                   ('04', '05', '06') THEN
+               to_char(tim.from_date, 'RRRR') || 'Q2'
+              WHEN substr(to_char(tim.from_date, 'MMRRRR'), 1, 2) IN
+                   ('07', '08', '09') THEN
+               to_char(tim.from_date, 'RRRR') || 'Q3'
+              WHEN substr(to_char(tim.from_date, 'MMRRRR'), 1, 2) IN
+                   ('10', '11', '12') THEN
+               to_char(tim.from_date, 'RRRR') || 'Q4'
+            END) level_member_name
+   FROM msc_levels_v lvl, msc_dimension_tim_dyd tim
+  WHERE 1 = 1
+    AND lvl.level_id = tim_level_id + 2
+    AND tim_level_id = 51
+  GROUP BY lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.level_name,
+           tim.tim_53_id
+ UNION
+ --Time-Year
+ SELECT lvl.dimension_id,
+        lvl.dimension_code,
+        lvl.dimension_name,
+        lvl.level_id,
+        lvl.dimension_code || '-' || lvl.level_name level_name,
+        tim.tim_54_id level_member_id,
+        to_char(tim.from_date, 'YYYY') level_member_name
+   FROM msc_levels_v lvl, msc_dimension_tim_dyd tim
+  WHERE 1 = 1
+    AND lvl.level_id = tim_level_id + 3
+    AND tim_level_id = 51
+  GROUP BY lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.level_name,
+           tim.tim_54_id,
+           to_char(tim.from_date, 'YYYY')
+ UNION
+ --Time--Day
+ SELECT lvl.dimension_id,
+        lvl.dimension_code,
+        lvl.dimension_name,
+        lvl.level_id,
+        lvl.dimension_code || '-' || lvl.level_name level_name,
+        tim.tim_51_id level_member_id,
+        to_char(tim.from_date, 'YYYY-MON-DD') level_member_name
+   FROM msc_levels_v lvl, msc_dimension_tim_dyd tim
+  WHERE 1 = 1
+    AND lvl.level_id = tim_level_id
+    AND tim_level_id = 51
+  GROUP BY lvl.dimension_id,
+           lvl.dimension_code,
+           lvl.dimension_name,
+           lvl.level_id,
+           lvl.level_name,
+           tim.tim_51_id,
+           to_char(tim.from_date, 'YYYY-MON-DD')
+ UNION
+  --Resource-Organization  
+  SELECT lvl.dimension_id,
+         lvl.dimension_code,
+         lvl.dimension_name,
+         lvl.level_id,
+         lvl.dimension_code || '-' || lvl.level_name level_name,
+         mem.level_member_id,
+         res_org.name level_member_name
+    FROM msc_level_members_v mem,
+         msc_levels_v        lvl,
+         msc_dim_res_org_v   res_org
+   WHERE lvl.level_id = mem.level_id
+     AND res_org.id = mem.level_member_id
+     AND lvl.dimension_id = 6
+     AND lvl.level_id = 72
+  UNION
+  --Resource-Work Area  
+  SELECT lvl.dimension_id,
+         lvl.dimension_code,
+         lvl.dimension_name,
+         lvl.level_id,
+         lvl.dimension_code || '-' || lvl.level_name level_name,
+         mem.level_member_id,
+         res_area.name level_member_name
+    FROM msc_level_members_v mem,
+         msc_levels_v        lvl,
+         msc_dim_work_area_v res_area
+   WHERE lvl.level_id = mem.level_id
+     AND res_area.id = mem.level_member_id
+     AND nvl(res_area.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+     AND lvl.dimension_id = 6
+     AND lvl.level_id = 73
+  UNION
+  --Resource-Work Center 
+  SELECT lvl.dimension_id,
+         lvl.dimension_code,
+         lvl.dimension_name,
+         lvl.level_id,
+         lvl.dimension_code || '-' || lvl.level_name level_name,
+         mem.level_member_id,
+         res_center.name level_member_name
+    FROM msc_level_members_v   mem,
+         msc_levels_v          lvl,
+         msc_dim_work_center_v res_center
+   WHERE lvl.level_id = mem.level_id
+     AND res_center.id = mem.level_member_id
+     AND nvl(res_center.parent_id, -1) =
+         nvl(mem.parent_level_member_id, -1)
+     AND lvl.dimension_id = 6
+     AND lvl.level_id = 74
+  UNION
+  --Resource-Resource
+  SELECT lvl.dimension_id,
+         lvl.dimension_code,
+         lvl.dimension_name,
+         lvl.level_id,
+         lvl.dimension_code || '-' || lvl.level_name level_name,
+         mem.level_member_id,
+         res_res.name level_member_name
+    FROM msc_level_members_v mem,
+         msc_levels_v        lvl,
+         msc_dim_resource_v  res_res
+   WHERE lvl.level_id = mem.level_id
+     AND res_res.id = mem.level_member_id
+     AND nvl(res_res.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+     AND lvl.dimension_id = 6
+     AND lvl.level_id = 48
+     UNION
+  --Supplier-Supplier 
+  SELECT lvl.dimension_id,
+         lvl.dimension_code,
+         lvl.dimension_name,
+         lvl.level_id,
+         lvl.dimension_code || '-' || lvl.level_name level_name,
+         mem.level_member_id,
+         sup.name level_member_name
+    FROM msc_level_members_v mem, msc_levels_v lvl, msc_dim_supplier_v sup
+   WHERE lvl.level_id = mem.level_id
+     AND sup.id = mem.level_member_id
+     AND nvl(sup.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+     AND lvl.dimension_id = 4
+     AND lvl.level_id = 47
+  UNION
+  --Supplier-Supplier Site 
+  SELECT lvl.dimension_id,
+         lvl.dimension_code,
+         lvl.dimension_name,
+         lvl.level_id,
+         lvl.dimension_code || '-' || lvl.level_name level_name,
+         mem.level_member_id,
+         sup_site.name level_member_name
+    FROM msc_level_members_v     mem,
+         msc_levels_v            lvl,
+         msc_dim_supplier_site_v sup_site
+   WHERE lvl.level_id = mem.level_id
+     AND sup_site.id = mem.level_member_id
+     AND nvl(sup_site.parent_id, -1) = nvl(mem.parent_level_member_id, -1)
+     AND lvl.dimension_id = 4
+     AND lvl.level_id = 46
+          ) z
+ WHERE 1 = 1
+ ORDER BY dimension_id, level_id, level_member_id

@@ -1,0 +1,33 @@
+SELECT NVL(p.compile_designator,'Shared') planname,
+       NVL(m.name,'All') measurename,
+       NVL(a.audit_id,'-1') audit_id,
+       NVL(a.previous_value,'N/A') old_value,
+       NVL(a.new_value,'N/A') new_value,
+       NVL(dbms_lob.substr(a.details,4000,1),'#') details1,
+       NVL(dbms_lob.substr(a.details,4000,4001),'#') details2,
+       NVL(dbms_lob.substr(a.details,4000,8001),'#') details3,
+       NVL(dbms_lob.substr(a.details,4000,12001),'#') details4,
+       NVL(dbms_lob.substr(a.details,4000,16001),'#') details5,
+       NVL(dbms_lob.substr(a.details,4000,20001),'#') details6,
+       NVL(dbms_lob.substr(a.details,4000,24001),'#') details7,
+       NVL(dbms_lob.substr(a.details,4000,28001),'#') details8,
+       nvl(user_info.flname,a.created_by) created_by,
+	   a.creation_date creation_date
+  FROM msc_audit_trails_metadata a,
+       msc_measures_tl m,
+       msc_plan_definitions p,
+       (SELECT u.username AS username,
+               n.last_name flname
+          FROM fusion.per_person_names_f n,
+               fusion.per_users          u,
+               fusion.per_all_people_f   f
+         WHERE 1 = 1
+           AND f.person_id = n.person_id
+           AND u.person_id = f.person_id
+         GROUP BY u.username, n.last_name ) user_info
+ WHERE 1 = 1
+   AND a.measure_id = m.measure_id
+   AND p.plan_id(+) = a.plan_id
+   AND a.created_by = user_info.username(+)
+   AND m.LANGUAGE='US'
+   AND m.SOURCE_LANG='US'

@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pub="http://xmlns.oracle.com/oxp/service/PublicReportService">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <pub:deleteFolderInSession>
+         <pub:folderAbsolutePath>{FOLDERABSOLUTEPATH}</pub:folderAbsolutePath>
+         <pub:bipSessionToken>{BIPSESSIONTOKEN}</pub:bipSessionToken>
+      </pub:deleteFolderInSession>
+   </soapenv:Body>
+</soapenv:Envelope>

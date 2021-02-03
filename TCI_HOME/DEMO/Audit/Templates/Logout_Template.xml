@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pub="http://xmlns.oracle.com/oxp/service/PublicReportService">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <pub:logout>
+         <pub:bipSessionToken>{BIPSESSIONTOKEN}</pub:bipSessionToken>
+      </pub:logout>
+   </soapenv:Body>
+</soapenv:Envelope>

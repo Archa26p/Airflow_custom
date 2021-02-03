@@ -1,0 +1,15 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://xmlns.oracle.com/oxp/service/v2">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v2:runDataModelInSession>
+         <v2:reportRequest>
+            <v2:attributeFormat>xml</v2:attributeFormat>
+            <v2:attributeLocale>en_US</v2:attributeLocale>
+            <v2:byPassCache>true</v2:byPassCache>
+            <v2:reportAbsolutePath>{REPORT_ABSOLUTE_PATH}</v2:reportAbsolutePath>
+            <v2:sizeOfDataChunkDownload>-1</v2:sizeOfDataChunkDownload>
+         </v2:reportRequest>
+         <v2:bipSessionToken>{BIPSESSIONTOKEN}</v2:bipSessionToken>
+      </v2:runDataModelInSession>
+   </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,13 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v2="http://xmlns.oracle.com/oxp/service/v2">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v2:createObjectInSession>
+         <v2:folderAbsolutePathURL>{REPORT_ABSOLUTE_PATH}</v2:folderAbsolutePathURL>
+         <v2:objectName>{OBJECT_NAME}</v2:objectName>
+         <v2:objectType>{OBJECT_TYPE}</v2:objectType>
+         <v2:objectDescription>{OBJECT_DESCRIPTION}</v2:objectDescription>
+         <v2:objectData>{OBJECT_DATA}</v2:objectData>
+         <v2:bipSessionToken>{BIPSESSIONTOKEN}</v2:bipSessionToken>
+      </v2:createObjectInSession>
+   </soapenv:Body>
+</soapenv:Envelope>
